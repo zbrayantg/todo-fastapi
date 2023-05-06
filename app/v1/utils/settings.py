@@ -16,6 +16,10 @@ class Settings(BaseSettings):
     secret_key: str = os.getenv("SECRET_KEY")
     token_expire: int = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
 
+    redis_url: str = os.getenv("REDIS_URL")
+    redis_port: str = os.getenv("REDIS_PORT")
+    redis_db: str = os.getenv("REDIS_DB")
+
     @property
     def db_name(self):
         if os.getenv("RUN_ENV") == "test":

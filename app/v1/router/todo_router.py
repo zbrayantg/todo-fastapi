@@ -13,12 +13,12 @@ router = APIRouter(prefix="/api/v1/todo")
 
 @router.get(
     "/",
-    tags=["to-do"],
+    tags=["todo"],
     status_code=status.HTTP_200_OK,
     response_model=List[todo_schema.Todo],
     dependencies=[Depends(get_db)],
 )
-def get_tasks(
+async def get_tasks(
     is_done: Optional[bool] = Query(None),
     current_user: User = Depends(get_current_user),
 ):
@@ -34,17 +34,17 @@ def get_tasks(
     ### Returns
     - return the tasks list
     """
-    return todo_service.get_tasks(current_user, is_done)
+    return await todo_service.get_tasks(current_user, is_done)
 
 
 @router.get(
     "/{task_id}",
-    tags=["to-do"],
+    tags=["todo"],
     status_code=status.HTTP_200_OK,
     response_model=todo_schema.Todo,
     dependencies=[Depends(get_db)],
 )
-def get_task(
+async def get_task(
     task_id: int = Path(..., gt=0),
     current_user: User = Depends(get_current_user),
 ):
@@ -62,7 +62,7 @@ def get_task(
     ### Returns
     - return the task
     """
-    return todo_service.get_task(task_id, current_user)
+    return await todo_service.get_task(task_id, current_user)
 
 
 @router.post(
@@ -72,7 +72,7 @@ def get_task(
     response_model=todo_schema.Todo,
     dependencies=[Depends(get_db)],
 )
-def create_task(
+async def create_task(
     todo: todo_schema.TodoCreate = Body(...),
     current_user: User = Depends(get_current_user),
 ):
@@ -90,7 +90,7 @@ def create_task(
     ### Returns
     - return created task
     """
-    return todo_service.create_task(todo, current_user)
+    return await todo_service.create_task(todo, current_user)
 
 
 @router.patch(
@@ -100,7 +100,7 @@ def create_task(
     response_model=todo_schema.Todo,
     dependencies=[Depends(get_db)],
 )
-def mark_task_done(
+async def mark_task_done(
     task_id: int = Path(..., gt=0),
     current_user: User = Depends(get_current_user),
 ):
@@ -118,7 +118,7 @@ def mark_task_done(
     ### Returns
     - return updated task
     """
-    return todo_service.update_status_task(True, task_id, current_user)
+    return await todo_service.update_status_task(True, task_id, current_user)
 
 
 @router.patch(
@@ -128,7 +128,7 @@ def mark_task_done(
     response_model=todo_schema.Todo,
     dependencies=[Depends(get_db)],
 )
-def unmark_task_done(
+async def unmark_task_done(
     task_id: int = Path(..., gt=0),
     current_user: User = Depends(get_current_user),
 ):
@@ -146,7 +146,7 @@ def unmark_task_done(
     ### Returns
     - return updated task
     """
-    return todo_service.update_status_task(False, task_id, current_user)
+    return await todo_service.update_status_task(False, task_id, current_user)
 
 
 @router.delete(
@@ -155,7 +155,7 @@ def unmark_task_done(
     status_code=status.HTTP_200_OK,
     dependencies=[Depends(get_db)],
 )
-def delete_task(
+async def delete_task(
     task_id: int = Path(..., gt=0),
     current_user: User = Depends(get_current_user),
 ):
@@ -173,6 +173,6 @@ def delete_task(
     ### Returns
     - success message
     """
-    todo_service.delete_task(task_id, current_user)
+    await todo_service.delete_task(task_id, current_user)
 
     return {"msg": "Task has been deleted successfully"}

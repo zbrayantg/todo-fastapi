@@ -1,5 +1,6 @@
 from contextvars import ContextVar
 
+import aioredis
 import peewee
 from fastapi import Depends
 
@@ -13,6 +14,9 @@ DB_PASS = settings.db_pass
 DB_HOST = settings.db_host
 DB_PORT = settings.db_port
 
+REDIS_HOST = settings.redis_url
+REDIS_PORT = settings.redis_port
+REDIS_DB = settings.redis_db
 
 db_state_default = {
     "closed": None,
@@ -54,3 +58,26 @@ def get_db(db_state=Depends(reset_db_state)):
     finally:
         if not db.is_closed():
             db.close()
+
+
+redis_pool = None
+
+
+async def get_redis_pool():
+    global redis_pool
+    if not redis_pool:
+        redis_pool = await aioredis.from_url(
+            f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
+        )
+    return redis_pool
+
+
+async def close_redis_pool():
+    if redis_pool:
+        redis_pool.close()
+        await redis_pool.wait_closed()
+
+
+async def reset_redis_pool():
+    global redis_pool
+    redis_pool = None
