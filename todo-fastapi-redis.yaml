@@ -1,0 +1,166 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-todo-fastapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-todo-fastapi
+  template:
+    metadata:
+      labels:
+        app: redis-todo-fastapi
+    spec:
+      nodeSelector:
+        "kubernetes.io/os": linux
+      containers:
+      - name: redis-todo-fastapi
+        image: redis:latest
+        env:
+        - name: ALLOW_EMPTY_PASSWORD
+          value: "yes"
+        ports:
+        - containerPort: 6379
+          name: redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-todo-fastapi
+spec:
+  ports:
+  - port: 6379
+  selector:
+    app: redis-todo-fastapi
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: postgres-pv-volume
+  labels:
+    type: local
+    app: db-todo-fastapi
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/data"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: postgres-pv-claim
+  labels:
+    app: db-todo-fastapi
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-todo-fastapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-todo-fastapi
+  template:
+    metadata:
+      labels:
+        app: db-todo-fastapi
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:latest
+          imagePullPolicy: "IfNotPresent"
+          env:
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              value: "todo_fastapi2022"
+            - name: POSTGRES_DB
+              value: "todo_fastapi"
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgredb
+      volumes:
+        - name: postgredb
+          persistentVolumeClaim:
+            claimName: postgres-pv-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-todo-fastapi
+spec:
+  type: NodePort
+  ports:
+  - port: 5432
+  selector:
+    app: db-todo-fastapi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-todo-fastapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-todo-fastapi
+  template:
+    metadata:
+      labels:
+        app: web-todo-fastapi
+    spec:
+      containers:
+      - name: web-todo-fastapi
+        image: acrimagine.azurecr.io/todo-fastapi
+        ports:
+        - containerPort: 80
+        env:
+        - name: DATABASE
+          value: "todo_fastapi"
+        - name: DB_NAME
+          value: "todo_fastapi"
+        - name: DB_USER
+          value: "postgres"
+        - name: DB_PASS
+          value: "todo_fastapi2022"
+        - name: DB_HOST
+          value: "db-todo-fastapi"
+        - name: DB_PORT
+          value: "5432"
+        - name: REDIS_URL
+          value: "redis-todo-fastapi"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: REDIS_DB
+          value: "0"
+        - name: ACCESS_TOKEN_EXPIRE_MINUTES
+          value: "1440"
+        - name: SECRET_KEY
+          value: "8d7c7d63ac7fc7f50e657e3d66dc5fe351b8c445f5a50369106164dcc5fd13ab"
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-todo-fastapi
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: web-todo-fastapi

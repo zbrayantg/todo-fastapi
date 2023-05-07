@@ -10,6 +10,8 @@ WORKDIR /code
 # Copy the requirements file to /code/requirements.txt
 COPY ./requirements.txt /code/requirements.txt
 
+RUN pip install --upgrade pip
+
 # Install the required Python packages listed in requirements.txt
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
