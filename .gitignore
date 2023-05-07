@@ -4,4 +4,6 @@
 __pycache__/
 venv
 .env
+.env.prod
+.env.db
 .pytest_cache

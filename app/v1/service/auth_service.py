@@ -9,33 +9,38 @@ from passlib.context import CryptContext
 from app.v1.model.user_model import User as UserModel
 from app.v1.schema.token_schema import TokenData
 from app.v1.utils.settings import Settings
-
+# Load settings
 settings = Settings()
 
-
+# Load secret key, algorithm and token expiration time from settings
 SECRET_KEY = settings.secret_key
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.token_expire
 
-
+# Password context using bcrypt
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# OAuth2 password bearer token
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/login")
 
 
+# Verify password function using bcrypt
 def verify_password(plain_password, password):
     return pwd_context.verify(plain_password, password)
 
 
+# Generate hash password using bcrypt
 def get_password_hash(password):
     return pwd_context.hash(password)
 
 
+# Retrieve user from database based on email or username
 def get_user(username: str):
     return UserModel.filter(
         (UserModel.email == username) | (UserModel.username == username)
     ).first()
 
 
+# Authenticate user with email/username and password
 def authenticate_user(username: str, password: str):
     user = get_user(username)
     if not user:
@@ -45,6 +50,7 @@ def authenticate_user(username: str, password: str):
     return user
 
 
+# Create access token for user
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
     if expires_delta:
@@ -56,6 +62,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 
+# Generate access token for user
 def generate_token(username, password):
     user = authenticate_user(username, password)
     if not user:
@@ -70,6 +77,7 @@ def generate_token(username, password):
     )
 
 
+# Get current user based on token
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
