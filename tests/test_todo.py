@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from main import app
+from app.main import app
 
 
 def create_user_and_make_login(username: str):
