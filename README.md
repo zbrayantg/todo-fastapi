@@ -27,7 +27,7 @@ Feel free to make CRUD operations on tasks using the provided endpoints.
 
 Clone this repository.
 ```
-git clone ...
+git clone https://github.com/zbrayantg/todo-fastapi.git
 ```
 
 ## Running into a virtual env
