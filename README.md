@@ -2,6 +2,22 @@
 
 This is a simple To-Do API built using the FastAPI framework. The API allows users to create, read, update, and delete to-do items stored in a PostgreSQL database and a Redis cache. It also utilizes token-based authentication using JWT.
 
+# Getting Started
+Open your preferred web browser and go to the following address:
+```
+http://20.241.204.95/docs
+```
+
+This will open the Swagger UI documentation for the API, where you can explore and interact with the available endpoints.
+
+To access protected endpoints, you will need to create a user account and obtain an access token.
+Click on the "Create User" endpoint in the Swagger UI and provide the required information to create a new user
+
+After successfully creating the user, use the user credentials to authenticate and obtain an access token.
+
+Once you have the access token, you can use it to authorize your requests to protected endpoints.
+
+Feel free to make CRUD operations on tasks using the provided endpoints.
 ## Requirements
 
 - PostgreSQL (version 9.5 or higher)
@@ -58,7 +74,7 @@ docker-compose -f docker-compose.yml up -d --build
 ```
 This process may take a few minutes, depending on your network.
 
-## Usage
+## Local Usage
 
 Once the application is running, you can access the API documentation by visiting http://localhost:8000/docs.
 
@@ -79,3 +95,10 @@ All code in this project follows the PEP8 style guide.
 ## Documentation
 
 All code in this project is properly documented.
+
+# Contact
+
+For any questions or inquiries, please contact:
+
+Brayant Gualdron (zbgualdron@gmail.com)
+Feel free to reach out with any feedback or suggestions!
