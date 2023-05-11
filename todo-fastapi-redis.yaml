@@ -126,7 +126,7 @@ spec:
     spec:
       containers:
       - name: web-todo-fastapi
-        image: acrimagine.azurecr.io/todo-fastapi
+        image: zbrayant/todo-fastapi
         ports:
         - containerPort: 80
         env:
